@@ -17,4 +17,3 @@ import java.util.List;
         public static List<Product> PRODUCT_LIST = new ArrayList<>();
         public static List<Product> PRODUCTSALES_LIST = new ArrayList<>();
 }
-
