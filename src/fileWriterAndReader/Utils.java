@@ -165,8 +165,8 @@ public class Utils {
                 captureSales(productId, product.getName(), quantity, product.getPrice());
                 saveToSalesFile();
                 product.sell(quantity);
+                saveToFile();
             }
-            saveToFile();
             System.out.println("Product sold successfully");
         } else {
             System.out.println("Product has been sold out");
