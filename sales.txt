@@ -1,0 +1,1 @@
+fileWriterAndReader.Product{id=4, name='Crayon', quantity=1, price=2000.0, isDeleted=false};

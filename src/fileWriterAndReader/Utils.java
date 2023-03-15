@@ -4,6 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import static fileWriterAndReader.AppConstants.*;
@@ -159,8 +162,9 @@ public class Utils {
             Scanner scanner = new Scanner(System.in);
             int quantity = scanner.nextInt();
             if (product.getQuantity() >= quantity) {
-                product.sell(quantity);
                 captureSales(productId, product.getName(), quantity, product.getPrice());
+                saveToSalesFile();
+                product.sell(quantity);
             }
             saveToFile();
             System.out.println("Product sold successfully");
@@ -170,13 +174,17 @@ public class Utils {
     }
 
     private static void captureSales(int productId, String name, int quantity, double price) throws IOException {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDate Date = LocalDate.now();
         Product product = new Product(productId, name, quantity, price);
-        saveToSalesFile(product);
+        PRODUCTSALES_LIST.add(product);
+
     }
 
-    private static void saveToSalesFile(Product product) throws IOException {
+    private static void saveToSalesFile() throws IOException {
         try (FileWriter fileWriter = new FileWriter(FILE2)) {
-            fileWriter.append(String.valueOf(product) + SPLIT_PATTERN);
+            for(Product product:PRODUCTSALES_LIST)
+            fileWriter.write(product + SPLIT_PATTERN);
             fileWriter.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -197,25 +205,66 @@ public class Utils {
         System.out.println("Product updated ");
     }
 
-    public static String viewSales() {
-        if (!FILE2.exists()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        try (FileReader fileReader = new FileReader(FILE2)) {
-            int i;
-            while ((i = fileReader.read()) != -1) {
-                sb.append((char) i);
-                //System.out.println((char) i);
+    public static void viewSales() {
+        int ops = collectIntegerInput("Select operations \n1. View all sales \n2. View sales by Product ID \n3. View sales by date ");
+        if (ops == 1) {
+            if (!PRODUCTSALES_LIST.isEmpty()) {
+                String format = String.format("%-4s %-30s %-12s %-8s %n",
+                        "ID", "NAME", "QUANTITY", "PRICE");
+
+                StringBuilder sb = new StringBuilder(format);
+
+                for (Product product : PRODUCTSALES_LIST) {
+                    if (!product.isDeleted()) {
+                        String productLine = String.format("%-4d %-30s %-12d %-8s %n",
+                                product.getId(), product.getName(), product.getQuantity(), product.getPrice());
+                        sb.append(productLine);
+                    }
+                }
+                System.out.println(sb);
+            } else {
+                System.out.println("No product found!");
             }
-            String product = sb.toString();
-            System.out.println(product);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+        } else if (ops == 2){
+            int productId = collectIntegerInput("Please enter ProductId you want to view ");
+            if (!PRODUCTSALES_LIST.isEmpty()) {
+                String format = String.format("%-4s %-30s %-12s %-8s %n",
+                        "ID", "NAME", "QUANTITY", "PRICE");
+
+                StringBuilder sb = new StringBuilder(format);
+
+                for (Product product : PRODUCTSALES_LIST) {
+                    if (product.getId() == productId) {
+                        product = getSalesProduct(productId);
+                        String productSalesLine = String.format("%-4d %-30s %-12d %-8s %n",
+                                product.getId(), product.getName(), product.getQuantity(), product.getPrice());
+                        sb.append(productSalesLine);
+                    }
+                    else{
+                        System.out.println("no product with id" + productId + " " + "sold" );
+                    }
+                }
+                System.out.println(sb);
+            } else {
+                System.out.println("No product with id!");
+            }
         }
-        return sb.toString();
+
     }
+    private static Product getSalesProduct(int productId) {
+        if (productId < 1 ) {
+            try {
+                throw new InvalidProductIdException(String.format("Product with id %d is invalid", productId));
+            } catch (InvalidProductIdException e) {
+                System.out.println(e.getMessage());
+                System.exit(0);
+            }
+        }
+        return PRODUCTSALES_LIST.get(productId-1);
     }
+
+}
 
 
 
