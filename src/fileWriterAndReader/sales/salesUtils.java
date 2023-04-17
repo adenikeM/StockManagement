@@ -4,6 +4,7 @@ import fileWriterAndReader.AppConstants;
 import fileWriterAndReader.InvalidProductIdException;
 import fileWriterAndReader.Product;
 import fileWriterAndReader.Utils;
+import fileWriterAndReader.sales.Sales;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,18 +16,19 @@ import static fileWriterAndReader.Utils.collectIntegerInput;
 
 public class salesUtils {
     public static final String SPLIT_PATTERN = ";\n";
+    private static LocalDate currentDate;
 
 
-    public static void captureSales(int productId, String name, int quantitySold, double price) throws IOException {
-       Sales sales = new Sales(productId,name,quantitySold,price);
-       PRODUCTSALES_LIST.add(sales);
+    public static void captureSales() throws IOException {
+      // Sales sales = new Sales();
+     // PRODUCTSALES_LIST.add(sales);
         saveToSalesFile();
     }
 
     private static void saveToSalesFile() throws IOException {
         try (FileWriter fileWriter = new FileWriter(FILE2)) {
             for (Sales sales : AppConstants.PRODUCTSALES_LIST) {
-                fileWriter.write(sales + SPLIT_PATTERN);
+                fileWriter.write(sales.getMessageDetails() + SPLIT_PATTERN);
                fileWriter.flush();
            }
        } catch (IOException e) {
@@ -46,15 +48,15 @@ public class salesUtils {
         int ops = collectIntegerInput("Select operations \n1. View all sales \n2. View sales by Product ID \n3. View sales by date ");
         if (ops == 1) {
             if (!PRODUCTSALES_LIST.isEmpty()) {
-                String format = String.format("%-4s %-30s %-12s %-8s %n",
-                        "ID", "NAME", "QUANTITY", "PRICE");
+                String format = String.format("%-4s %-30s %-12s %-8s %-10s %n",
+                        "ID", "NAME", "QUANTITY", "PRICE","CURRENT DATE");
 
                 StringBuilder sb = new StringBuilder(format);
 
                 for (Sales sales : PRODUCTSALES_LIST) {
                     if (!sales.isDeleted()) {
-                        String productLine = String.format("%-4d %-30s %-12d %-8s %n",
-                                sales.getId(), sales.getName(), sales.getQuantity(), sales.getPrice());
+                        String productLine = String.format("%-4d %-30s %-12d %-8s %10s %n",
+                                sales.getId(), sales.getName(), sales.getQuantity(), sales.getPrice(), sales.getCurrentDate());
                         sb.append(productLine);
                     }
                 }
@@ -74,7 +76,7 @@ public class salesUtils {
                 for (Sales product : PRODUCTSALES_LIST) {
                     if (product.getId() == productId) {
                         product = getSalesProduct(productId);
-                        String productSalesLine = String.format("%-4d %-30s %-12d %-8s %n",
+                        String productSalesLine = String.format("%-4d %-30s %-12d %-8s  %n",
                                 product.getId(), product.getName(), product.getQuantity(), product.getPrice());
                         sb.append(productSalesLine);
                     }
