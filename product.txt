@@ -1,0 +1,5 @@
+1,Pen,10,500.0,false;
+2,Pencil,20,1000.0,false;
+3,Book,26,2000.0,false;
+4,Maker,35,3000.0,false;
+5,Crayon,40,4000.0,false;
