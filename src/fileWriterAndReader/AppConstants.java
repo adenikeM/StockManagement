@@ -15,4 +15,5 @@ import java.util.List;
         public static final File FILE = new File(FILE_NAME);
         public static final File FILE2 = new File(FILE_NAME2);
         public static List<Product> PRODUCT_LIST = new ArrayList<>();
+        public static List<Product> PRODUCTSALES_LIST = new ArrayList<>();
 }
